@@ -6,11 +6,17 @@ import java.awt.*;
 public class WelcomeScreen extends JPanel {
     public WelcomeScreen(MainFrame frame) {
         setBackground(MainFrame.BG_COLOR);
-        setLayout(new GridBagLayout()); // Centering content
+        setLayout(new GridBagLayout());
 
-        JLabel logo = new JLabel("APP LOGO HERE");
-        logo.setFont(new Font("SansSerif", Font.BOLD, 50));
-        logo.setForeground(MainFrame.LIGHT_TEXT);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 0));
+        titlePanel.setOpaque(false);
+
+        JLabel logo = UIUtils.createLogoLabel(64, 64);
+        JLabel title = new JLabel("CPU Scheduling Simulator");
+        title.setFont(new Font("SansSerif", Font.BOLD, 44));
+        title.setForeground(MainFrame.LIGHT_TEXT);
+        titlePanel.add(logo);
+        titlePanel.add(title);
 
         JButton startBtn = UIUtils.createStyledButton("Start");
         JButton helpBtn = UIUtils.createStyledButton("Help");
@@ -18,12 +24,11 @@ public class WelcomeScreen extends JPanel {
         startBtn.addActionListener(e -> frame.showScreen("INPUT_METHOD"));
         helpBtn.addActionListener(e -> frame.showScreen("HELP"));
 
-        // Layout logic
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; 
         gbc.gridy = 0;
-        gbc.insets = new Insets(0, 0, 20, 0); // Add padding below logo
-        add(logo, gbc);
+        gbc.insets = new Insets(0, 0, 20, 0);
+        add(titlePanel, gbc);
         
         JPanel btnPanel = new JPanel();
         btnPanel.setOpaque(false);

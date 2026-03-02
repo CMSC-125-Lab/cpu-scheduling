@@ -21,7 +21,7 @@ public class MainFrame extends JFrame {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        // Initialize Screens
+        cardPanel.add(new SplashScreen(), "SPLASH");
         cardPanel.add(new WelcomeScreen(this), "WELCOME");
         cardPanel.add(new InputMethodScreen(this), "INPUT_METHOD");
         cardPanel.add(new ManualInputScreen(this), "MANUAL_INPUT");
@@ -29,6 +29,12 @@ public class MainFrame extends JFrame {
         cardPanel.add(new HelpScreen(this), "HELP");
 
         add(cardPanel);
+
+        showScreen("SPLASH");
+        Timer splashTimer = new Timer(1800, e -> showScreen("WELCOME"));
+        splashTimer.setRepeats(false);
+        splashTimer.start();
+
         setVisible(true);
     }
 
@@ -36,7 +42,4 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardPanel, name);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainFrame::new);
-    }
 }

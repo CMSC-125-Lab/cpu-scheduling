@@ -51,9 +51,7 @@ public class HelpScreen extends JPanel {
         content.add(helpText, BorderLayout.CENTER);
         add(content, BorderLayout.CENTER);
 
-        JLabel footerLogo = new JLabel("APP LOGO HERE");
-        footerLogo.setFont(new Font("SansSerif", Font.BOLD, 28));
-        footerLogo.setForeground(MainFrame.LIGHT_TEXT.darker());
+        JLabel footerLogo = UIUtils.createLogoLabel(100, 100);
         add(footerLogo, BorderLayout.SOUTH);
     }
 }

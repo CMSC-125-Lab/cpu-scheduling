@@ -1,1 +1,9 @@
-/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/code4school/App.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/App.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/HelpScreen.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/InputMethodScreen.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/MainFrame.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/ManualInputScreen.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/SimulationScreen.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/SplashScreen.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/UIUtils.java
+/Users/vance.ortega/Documents/Code4School/cpu-scheduler/cpu-scheduling/src/main/java/com/cpuScheduler/WelcomeScreen.java

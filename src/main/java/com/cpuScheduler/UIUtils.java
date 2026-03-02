@@ -38,6 +38,24 @@ public class UIUtils {
         return btn;
     }
 
+    public static JLabel createLogoLabel(int width, int height) {
+        JLabel logoLabel = new JLabel();
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        java.net.URL logoUrl = UIUtils.class.getResource("/cpu-logo.png");
+        if (logoUrl != null) {
+            ImageIcon rawIcon = new ImageIcon(logoUrl);
+            Image scaled = rawIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            logoLabel.setIcon(new ImageIcon(scaled));
+        } else {
+            logoLabel.setText("APP LOGO");
+            logoLabel.setForeground(MainFrame.LIGHT_TEXT);
+            logoLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        }
+
+        return logoLabel;
+    }
+
     public static JPanel wrap(JComponent c) {
         JPanel p = new JPanel();
         p.setOpaque(false);

@@ -44,9 +44,7 @@ public class SimulationScreen extends JPanel {
         centerPanel.add(scrollPane);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Bottom Logo
-        JLabel footerLogo = new JLabel("APP LOGO HERE");
-        footerLogo.setForeground(MainFrame.LIGHT_TEXT.darker());
+        JLabel footerLogo = UIUtils.createLogoLabel(140, 44);
         add(footerLogo, BorderLayout.SOUTH);
     }
 
