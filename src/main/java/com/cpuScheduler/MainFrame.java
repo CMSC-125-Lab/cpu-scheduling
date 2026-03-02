@@ -9,8 +9,8 @@ public class MainFrame extends JFrame {
 
     // Global Styles
     public static final Color BG_COLOR = new Color(20, 20, 45);
-    public static final Color PURPLE_BTN = new Color(142, 45, 142);
-    public static final Color LIGHT_TEXT = new Color(220, 160, 220);
+    public static final Color PURPLE_BTN = new Color(152, 37, 152);
+    public static final Color LIGHT_TEXT = new Color(228, 145, 201);
 
     public MainFrame() {
         setTitle("CPU Scheduler Simulation");
