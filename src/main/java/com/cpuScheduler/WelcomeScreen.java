@@ -8,35 +8,44 @@ public class WelcomeScreen extends JPanel {
         setBackground(MainFrame.BG_COLOR);
         setLayout(new GridBagLayout());
 
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 0));
-        titlePanel.setOpaque(false);
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        JLabel logo = UIUtils.createLogoLabel(64, 64);
+        // Logo + Title row
+        JPanel titleRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 0));
+        titleRow.setOpaque(false);
+        JLabel logo = UIUtils.createLogoLabel(60, 60);
         JLabel title = new JLabel("CPU Scheduling Simulator");
-        title.setFont(new Font("SansSerif", Font.BOLD, 44));
+        title.setFont(new Font("SansSerif", Font.BOLD, 40));
         title.setForeground(MainFrame.LIGHT_TEXT);
-        titlePanel.add(logo);
-        titlePanel.add(title);
+        titleRow.add(logo);
+        titleRow.add(title);
 
-        JButton startBtn = UIUtils.createStyledButton("Start");
-        JButton helpBtn = UIUtils.createStyledButton("Help");
+        JLabel subtitle = new JLabel("Visualize & Understand CPU Scheduling Algorithms");
+        subtitle.setFont(new Font("SansSerif", Font.ITALIC, 15));
+        subtitle.setForeground(new Color(180, 120, 180));
+        subtitle.setAlignmentX(CENTER_ALIGNMENT);
+
+        JButton startBtn = UIUtils.createStyledButton("▶   Start Simulation");
+        JButton helpBtn  = UIUtils.createStyledButton("?   Help");
+        startBtn.setPreferredSize(new Dimension(240, 44));
+        helpBtn.setPreferredSize(new Dimension(240, 44));
 
         startBtn.addActionListener(e -> frame.showScreen("INPUT_METHOD"));
         helpBtn.addActionListener(e -> frame.showScreen("HELP"));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; 
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 0, 20, 0);
-        add(titlePanel, gbc);
-        
-        JPanel btnPanel = new JPanel();
-        btnPanel.setOpaque(false);
-        btnPanel.add(startBtn);
-        btnPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-        btnPanel.add(helpBtn);
-        
-        gbc.gridy = 1;
-        add(btnPanel, gbc);
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        btnRow.setOpaque(false);
+        btnRow.add(startBtn);
+        btnRow.add(helpBtn);
+
+        content.add(titleRow);
+        content.add(Box.createRigidArea(new Dimension(0, 10)));
+        content.add(subtitle);
+        content.add(Box.createRigidArea(new Dimension(0, 36)));
+        content.add(btnRow);
+
+        add(content);
     }
 }

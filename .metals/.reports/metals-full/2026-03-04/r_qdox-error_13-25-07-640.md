@@ -1,3 +1,20 @@
+error id: file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/SimulationScreen.java
+file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/SimulationScreen.java
+### com.thoughtworks.qdox.parser.ParseException: syntax error @[2,13]
+
+error in qdox parser
+file content:
+```java
+offset: 87
+uri: file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/SimulationScreen.java
+text:
+```scala
+    // Returns the timer delay in milliseconds based on speedSlider value
+    private i@@nt getTimerDelay() {
+        int speed = speedSlider != null ? speedSlider.getValue() : 5;
+        // Example: speed 1 = 60ms, speed 10 = 10ms
+        return 60 - (speed - 1) * 5;
+    }
 package com.cpuScheduler;
 
 import java.awt.BasicStroke;
@@ -9,17 +26,14 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -38,44 +52,48 @@ import com.cpuScheduler.schedulingAlgorithms.SJFPreemptive;
 
 public class SimulationScreen extends JPanel {
 
-    private static final int GANTT_HEIGHT = 100;
-
     private static final Color[] PROCESS_COLORS = {
-        new Color(152,  37, 152), new Color( 37, 130, 200),
-        new Color( 37, 180,  80), new Color(200, 120,  37),
-        new Color(200,  37,  80), new Color( 80,  37, 200),
-        new Color( 37, 180, 180), new Color(180, 180,  37),
-        new Color(200,  80, 140), new Color(100, 200,  80),
-        new Color( 80, 140, 200), new Color(200, 160,  80),
-        new Color(140,  80, 200), new Color( 80, 200, 160),
-        new Color(200,  80,  80), new Color( 80, 200,  80),
-        new Color(160,  80, 140), new Color(200, 140,  37),
-        new Color( 37, 100, 200), new Color(200,  37, 140),
+        new Color(152,  37, 152),
+        new Color( 37, 130, 200),
+        new Color( 37, 180,  80),
+        new Color(200, 120,  37),
+        new Color(200,  37,  80),
+        new Color( 80,  37, 200),
+        new Color( 37, 180, 180),
+        new Color(180, 180,  37),
+        new Color(200,  80, 140),
+        new Color(100, 200,  80),
+        new Color( 80, 140, 200),
+        new Color(200, 160,  80),
+        new Color(140,  80, 200),
+        new Color( 80, 200, 160),
+        new Color(200,  80,  80),
+        new Color( 80, 200,  80),
+        new Color(160,  80, 140),
+        new Color(200, 140,  37),
+        new Color( 37, 100, 200),
+        new Color(200,  37, 140),
     };
 
     private ScheduleResult result;
     private Map<String, Color> pidColor = new LinkedHashMap<>();
 
     private float currentTimerTick = 0f;
-    private int   maxTime          = 0;
+    private int maxTime = 0;
     private javax.swing.Timer animTimer;
     private boolean running = false;
 
     private GanttPanel ganttPanel;
-    private JLabel     timerLabel;
-    private JButton    playPauseBtn;
-    private JSlider    speedSlider;
-
-    // ---- Audio ----
-    // Map from gantt entry index → pre-built stretched Clip (null for IDLE)
-    private final Map<Integer, Clip> prebuiltClips = new HashMap<>();
-    private int lastEntryIndex = -1;
+    private JLabel timerLabel;
+    private JButton playPauseBtn;
+    private JSlider speedSlider;
 
     public SimulationScreen(MainFrame frame) {
         setBackground(MainFrame.BG_COLOR);
-        setLayout(new BorderLayout(0, 0));
+        setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 25, 20, 25));
 
+        // Run the algorithm
         result = runAlgorithm(frame);
         assignColors(frame.getProcesses());
         maxTime = result.gantt.isEmpty() ? 0
@@ -84,69 +102,53 @@ public class SimulationScreen extends JPanel {
         // ---- HEADER ----
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
-        header.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-
         JLabel title = new JLabel(frame.getSelectedAlgorithm() + " Simulation", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
         title.setForeground(Color.WHITE);
-
         header.add(UIUtils.createNavButton("← Back", e -> {
-            stopCurrentClip();
-            disposeAllClips();
             if (animTimer != null) animTimer.stop();
             frame.showScreen("MANUAL_INPUT");
         }), BorderLayout.WEST);
         header.add(title, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
 
-        // ---- CONTENT ----
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setOpaque(false);
+        // ---- CENTER ----
+        JPanel center = new JPanel();
+        center.setOpaque(false);
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx   = 0;
-        gbc.weightx = 1.0;
-        gbc.fill    = GridBagConstraints.HORIZONTAL;
-
-        // Row 0: Timer
+        // Timer display
         JPanel timerRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 4));
         timerRow.setOpaque(false);
-
         JLabel timerTitle = new JLabel("TIMER:");
         timerTitle.setFont(new Font("Monospaced", Font.BOLD, 16));
         timerTitle.setForeground(MainFrame.LIGHT_TEXT);
-
         timerLabel = new JLabel("000");
         timerLabel.setFont(new Font("Monospaced", Font.BOLD, 28));
         timerLabel.setForeground(Color.WHITE);
         timerLabel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(MainFrame.PURPLE_BTN, 1),
             BorderFactory.createEmptyBorder(2, 12, 2, 12)));
-
         timerRow.add(timerTitle);
         timerRow.add(timerLabel);
+        center.add(timerRow);
+        center.add(Box.createRigidArea(new Dimension(0, 6)));
 
-        gbc.gridy = 0; gbc.weighty = 0;
-        gbc.insets = new Insets(0, 0, 6, 0);
-        content.add(timerRow, gbc);
-
-        // Row 1: Gantt
+        // Gantt Chart
         ganttPanel = new GanttPanel();
-        JPanel ganttWrapper = new JPanel(new BorderLayout());
-        ganttWrapper.setOpaque(false);
-        ganttWrapper.setBorder(BorderFactory.createLineBorder(MainFrame.PURPLE_BTN, 1));
-        ganttWrapper.add(ganttPanel, BorderLayout.CENTER);
-        ganttWrapper.setPreferredSize(new Dimension(10, GANTT_HEIGHT));
-        ganttWrapper.setMinimumSize(new Dimension(10, GANTT_HEIGHT));
+        JScrollPane ganttScroll = new JScrollPane(ganttPanel,
+            JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        ganttScroll.setBackground(MainFrame.BG_COLOR);
+        ganttScroll.getViewport().setBackground(MainFrame.BG_COLOR);
+        ganttScroll.setBorder(BorderFactory.createLineBorder(MainFrame.PURPLE_BTN, 1));
+        ganttScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+        ganttScroll.setPreferredSize(new Dimension(Integer.MAX_VALUE, 130));
+        center.add(ganttScroll);
+        center.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        gbc.gridy = 1; gbc.weighty = 0;
-        gbc.insets = new Insets(0, 0, 8, 0);
-        content.add(ganttWrapper, gbc);
-
-        // Row 2: Controls
+        // Controls
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 2));
         controls.setOpaque(false);
-
         playPauseBtn = UIUtils.createStyledButton("▶ Play");
         JButton resetBtn = UIUtils.createStyledButton("⟳ Reset");
         playPauseBtn.setPreferredSize(new Dimension(120, 36));
@@ -166,12 +168,10 @@ public class SimulationScreen extends JPanel {
         controls.add(resetBtn);
         controls.add(speedLbl);
         controls.add(speedSlider);
+        center.add(controls);
+        center.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        gbc.gridy = 2; gbc.weighty = 0;
-        gbc.insets = new Insets(0, 0, 10, 0);
-        content.add(controls, gbc);
-
-        // Row 3: Stats table
+        // Statistics Table
         String[] cols = {"PID", "Burst", "Arrival", "Priority", "Waiting Time", "Turnaround Time"};
         Object[][] rows = buildTableData();
         DefaultTableModel model = new DefaultTableModel(rows, cols) {
@@ -179,7 +179,6 @@ public class SimulationScreen extends JPanel {
         };
         JTable statsTable = new JTable(model);
         styleTable(statsTable);
-
         JScrollPane tableScroll = new JScrollPane(statsTable);
         tableScroll.setBackground(MainFrame.BG_COLOR);
         tableScroll.getViewport().setBackground(new Color(30, 15, 50));
@@ -190,139 +189,42 @@ public class SimulationScreen extends JPanel {
             javax.swing.border.TitledBorder.TOP,
             new Font("SansSerif", Font.BOLD, 12),
             MainFrame.LIGHT_TEXT));
+        tableScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        center.add(tableScroll);
+        center.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        gbc.gridy = 3; gbc.fill = GridBagConstraints.BOTH; gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, 0, 8, 0);
-        content.add(tableScroll, gbc);
-
-        // Row 4: Averages
+        // Averages
         double[] avgs = computeAverages();
         JLabel avgLabel = new JLabel(String.format(
-            "Average Waiting Time: %.2f  |  Average Turnaround Time: %.2f", avgs[0], avgs[1]),
-            SwingConstants.CENTER);
+            "Average Waiting Time: %.2f  |  Average Turnaround Time: %.2f", avgs[0], avgs[1]));
         avgLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         avgLabel.setForeground(MainFrame.LIGHT_TEXT);
+        avgLabel.setAlignmentX(CENTER_ALIGNMENT);
+        center.add(avgLabel);
 
-        gbc.gridy = 4; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weighty = 0;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        content.add(avgLabel, gbc);
+        add(center, BorderLayout.CENTER);
 
-        add(content, BorderLayout.CENTER);
-
-        // Pre-build all clips BEFORE the timer starts, on a background thread.
-        // Show the Play button only once clips are ready.
-        playPauseBtn.setEnabled(false);
-        playPauseBtn.setText("Loading…");
-        new Thread(this::prebuildAllClips, "audio-prebuild").start();
+        // Setup animation timer (default 200ms per tick)
+        setupTimer();
     }
 
-    // ================================================================
-    //  Audio — pre-build all clips at construction time
-    // ================================================================
-
-    /**
-     * Build one stretched Clip per non-IDLE gantt entry and store them
-     * in prebuiltClips keyed by gantt index.
-     * Called once on a background thread so the UI stays responsive.
-     * Enables the Play button when done.
-     */
-    private void prebuildAllClips() {
-        for (int i = 0; i < result.gantt.size(); i++) {
-            GanttEntry entry = result.gantt.get(i);
-            if ("IDLE".equals(entry.pid)) continue;
-
-            int    blockUnits = entry.endTime - entry.startTime;
-            double targetSec  = blockToRealMs(blockUnits) / 1000.0;
-
-            Clip clip = AudioStretch.createStretched("/sounds/progressBar.wav", targetSec);
-            if (clip != null) {
-                prebuiltClips.put(i, clip);
-            }
-        }
-
-        // Back on EDT: enable Play button
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            playPauseBtn.setEnabled(true);
-            playPauseBtn.setText("▶ Play");
-            setupTimer(); // safe to set up now that clips are ready
-        });
-    }
-
-    /**
-     * How many real milliseconds does a block of `blockUnits` take to animate
-     * at the current speed slider setting?
-     */
-    private double blockToRealMs(int blockUnits) {
-        float unitsPerFrame = getStep();       // units advanced per 16 ms frame
-        float framesNeeded  = blockUnits / unitsPerFrame;
-        return framesNeeded * 16.0;
-    }
-
-    /** Stop whatever clip is currently playing (don't dispose it — we reuse it on reset). */
-    private void stopCurrentClip() {
-        if (lastEntryIndex >= 0) {
-            Clip c = prebuiltClips.get(lastEntryIndex);
-            if (c != null && c.isRunning()) c.stop();
-        }
-        lastEntryIndex = -1;
-    }
-
-    /** Close and release all pre-built clips (called on Back / screen teardown). */
-    private void disposeAllClips() {
-        for (Clip c : prebuiltClips.values()) {
-            try { c.close(); } catch (Exception ignored) {}
-        }
-        prebuiltClips.clear();
-    }
-
-    /**
-     * Called every animation frame.
-     * Detects entry into a new gantt block and starts its pre-built clip.
-     */
-    private void updateAudio() {
-        // Find which gantt entry the cursor is inside right now
-        int currentEntry = -1;
-        for (int i = 0; i < result.gantt.size(); i++) {
-            GanttEntry e = result.gantt.get(i);
-            if (currentTimerTick >= e.startTime && currentTimerTick < e.endTime) {
-                currentEntry = i;
-                break;
-            }
-        }
-
-        // No active entry or IDLE → stop sound
-        if (currentEntry == -1 || "IDLE".equals(result.gantt.get(currentEntry).pid)) {
-            if (lastEntryIndex != -1) stopCurrentClip();
-            return;
-        }
-
-        // Same block as last frame → already playing, nothing to do
-        if (currentEntry == lastEntryIndex) return;
-
-        // New block → stop old clip, start new pre-built clip immediately
-        stopCurrentClip();
-        lastEntryIndex = currentEntry;
-
-        Clip clip = prebuiltClips.get(currentEntry);
-        if (clip != null) {
-            clip.setFramePosition(0); // rewind in case of reset/replay
-            clip.start();
-        }
-    }
-
-    // ================================================================
-    //  Algorithm dispatch
-    // ================================================================
+    // -------- Algorithm dispatch --------
     private ScheduleResult runAlgorithm(MainFrame frame) {
         List<Process> procs = frame.getProcesses();
         String algo = frame.getSelectedAlgorithm();
         switch (algo) {
-            case "Round Robin":               return RoundRobin.run(procs, frame.getTimeQuantum());
-            case "SJF (Non-Preemptive)":      return SJFNonPreemptive.run(procs);
-            case "SJF (Preemptive)":          return SJFPreemptive.run(procs);
-            case "Priority (Non-Preemptive)": return PriorityNonPreemptive.run(procs, frame.isHigherPriorityFirst());
-            case "Priority (Preemptive)":     return PriorityPreemptive.run(procs, frame.isHigherPriorityFirst());
-            default:                          return FCFS.run(procs);
+            case "Round Robin":
+                return RoundRobin.run(procs, frame.getTimeQuantum());
+            case "SJF (Non-Preemptive)":
+                return SJFNonPreemptive.run(procs);
+            case "SJF (Preemptive)":
+                return SJFPreemptive.run(procs);
+            case "Priority (Non-Preemptive)":
+                return PriorityNonPreemptive.run(procs, frame.isHigherPriorityFirst());
+            case "Priority (Preemptive)":
+                return PriorityPreemptive.run(procs, frame.isHigherPriorityFirst());
+            default: // FCFS
+                return FCFS.run(procs);
         }
     }
 
@@ -340,8 +242,7 @@ public class SimulationScreen extends JPanel {
         Object[][] rows = new Object[procs.size()][6];
         for (int i = 0; i < procs.size(); i++) {
             Process p = procs.get(i);
-            rows[i] = new Object[]{p.pid, p.burstTime, p.arrivalTime, p.priority,
-                                   p.waitingTime, p.turnaroundTime};
+            rows[i] = new Object[]{p.pid, p.burstTime, p.arrivalTime, p.priority, p.waitingTime, p.turnaroundTime};
         }
         return rows;
     }
@@ -364,29 +265,25 @@ public class SimulationScreen extends JPanel {
         t.getTableHeader().setBackground(new Color(60, 20, 80));
         t.getTableHeader().setForeground(MainFrame.LIGHT_TEXT);
         t.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
-        t.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
 
-    // ================================================================
-    //  Animation timer
-    // ================================================================
+    // -------- Animation --------
     private void setupTimer() {
-        animTimer = new javax.swing.Timer(16, e -> {
+        animTimer = new javax.swing.Timer(getTimerDelay(), e -> { // ~60fps
             if (currentTimerTick < maxTime) {
                 currentTimerTick = Math.min(maxTime, currentTimerTick + getStep());
                 timerLabel.setText(String.format("%03d", (int) currentTimerTick));
                 ganttPanel.repaint();
-                updateAudio();
             } else {
                 animTimer.stop();
                 running = false;
                 playPauseBtn.setText("▶ Play");
-                stopCurrentClip();
             }
         });
     }
 
     private float getStep() {
+        // speed 1 = 0.01 units/frame (very slow), speed 10 = 0.25 units/frame (fast)
         int speed = speedSlider != null ? speedSlider.getValue() : 5;
         return 0.01f + (speed - 1) * 0.027f;
     }
@@ -396,10 +293,9 @@ public class SimulationScreen extends JPanel {
             animTimer.stop();
             running = false;
             playPauseBtn.setText("▶ Play");
-            stopCurrentClip();
         } else {
             if (currentTimerTick >= maxTime) resetSimulation();
-            animTimer.setDelay(16);
+            animTimer.setDelay(getTimerDelay());
             animTimer.start();
             running = true;
             playPauseBtn.setText("⏸ Pause");
@@ -407,28 +303,29 @@ public class SimulationScreen extends JPanel {
     }
 
     private void resetSimulation() {
-        if (animTimer != null) animTimer.stop();
-        stopCurrentClip();
+        animTimer.stop();
         running = false;
         playPauseBtn.setText("▶ Play");
-        currentTimerTick = 0f;
-        lastEntryIndex   = -1;
+        currentTimerTick = 0f;   // was 0
         timerLabel.setText("000");
         ganttPanel.repaint();
     }
 
-    // ================================================================
-    //  Gantt Chart Panel
-    // ================================================================
+    // -------- Gantt Chart Panel --------
     class GanttPanel extends JPanel {
-        private static final int BAR_Y   = 12;
         private static final int BAR_H   = 44;
-        private static final int LABEL_Y = BAR_Y + BAR_H + 18;
-        private static final int H_PAD   = 10;
+        private static final int BAR_Y   = 20;
+        private static final int LABEL_Y = BAR_Y + BAR_H + 16;
+        private static final int H       = LABEL_Y + 16;
+        private static final int H_PAD   = 10; // horizontal padding each side
 
         GanttPanel() {
             setOpaque(false);
-            setPreferredSize(new Dimension(10, GANTT_HEIGHT));
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(0, H + 10); // width = 0 so it stretches to parent
         }
 
         private float getScale() {
@@ -446,31 +343,33 @@ public class SimulationScreen extends JPanel {
 
             float scale = getScale();
 
+            // Background
             g2.setColor(new Color(25, 10, 40));
-            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
 
             for (GanttEntry entry : result.gantt) {
-                if (entry.startTime >= currentTimerTick) break;
+                if (entry.startTime >= currentTimerTick) break;  // float comparison
 
-                float visibleEnd = Math.min(entry.endTime, currentTimerTick);
-                int x     = H_PAD + Math.round(entry.startTime * scale);
-                int fullW = Math.round((entry.endTime - entry.startTime) * scale);
-                int visW  = Math.round((visibleEnd - entry.startTime) * scale);
-
-                fullW = Math.max(fullW, 1);
-                visW  = Math.max(Math.min(visW, fullW), 0);
+                float visibleEnd = Math.min(entry.endTime, currentTimerTick); // float
+                int x      = H_PAD + Math.round(entry.startTime * scale);
+                int fullW  = Math.round((entry.endTime  - entry.startTime) * scale);
+                int visW   = Math.round((visibleEnd - entry.startTime) * scale); // fractional!
 
                 Color c = pidColor.getOrDefault(entry.pid, Color.GRAY);
 
+                // Animated fill
                 g2.setColor(c);
                 g2.fillRect(x, BAR_Y, visW, BAR_H);
 
-                g2.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 45));
+                // Ghost (upcoming portion)
+                g2.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 40));
                 g2.fillRect(x + visW, BAR_Y, fullW - visW, BAR_H);
 
+                // Border
                 g2.setColor(c.darker());
                 g2.drawRect(x, BAR_Y, fullW, BAR_H);
 
+                // PID label (only when block is fully revealed)
                 if (visibleEnd >= entry.endTime) {
                     g2.setColor(Color.WHITE);
                     g2.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -482,11 +381,13 @@ public class SimulationScreen extends JPanel {
                     }
                 }
 
+                // Time label at start of segment
                 g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
                 g2.setColor(new Color(200, 180, 210));
                 g2.drawString(String.valueOf(entry.startTime), x, LABEL_Y);
             }
 
+            // End time label
             if (currentTimerTick >= maxTime && !result.gantt.isEmpty()) {
                 g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
                 g2.setColor(new Color(200, 180, 210));
@@ -494,6 +395,7 @@ public class SimulationScreen extends JPanel {
                 g2.drawString(String.valueOf(maxTime), endX, LABEL_Y);
             }
 
+            // Smooth cursor line — moves continuously
             int cursorX = H_PAD + Math.round(currentTimerTick * scale);
             g2.setColor(new Color(255, 220, 255, 200));
             g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
@@ -504,3 +406,42 @@ public class SimulationScreen extends JPanel {
         }
     }
 }
+
+```
+
+```
+
+
+
+#### Error stacktrace:
+
+```
+com.thoughtworks.qdox.parser.impl.Parser.yyerror(Parser.java:2025)
+	com.thoughtworks.qdox.parser.impl.Parser.yyparse(Parser.java:2147)
+	com.thoughtworks.qdox.parser.impl.Parser.parse(Parser.java:2006)
+	com.thoughtworks.qdox.library.SourceLibrary.parse(SourceLibrary.java:232)
+	com.thoughtworks.qdox.library.SourceLibrary.parse(SourceLibrary.java:190)
+	com.thoughtworks.qdox.library.SourceLibrary.addSource(SourceLibrary.java:94)
+	com.thoughtworks.qdox.library.SourceLibrary.addSource(SourceLibrary.java:89)
+	com.thoughtworks.qdox.library.SortedClassLibraryBuilder.addSource(SortedClassLibraryBuilder.java:162)
+	com.thoughtworks.qdox.JavaProjectBuilder.addSource(JavaProjectBuilder.java:174)
+	scala.meta.internal.mtags.JavaMtags.indexRoot(JavaMtags.scala:49)
+	scala.meta.internal.metals.SemanticdbDefinition$.foreachWithReturnMtags(SemanticdbDefinition.scala:99)
+	scala.meta.internal.metals.Indexer.indexSourceFile(Indexer.scala:560)
+	scala.meta.internal.metals.Indexer.$anonfun$reindexWorkspaceSources$3(Indexer.scala:691)
+	scala.meta.internal.metals.Indexer.$anonfun$reindexWorkspaceSources$3$adapted(Indexer.scala:688)
+	scala.collection.IterableOnceOps.foreach(IterableOnce.scala:630)
+	scala.collection.IterableOnceOps.foreach$(IterableOnce.scala:628)
+	scala.collection.AbstractIterator.foreach(Iterator.scala:1313)
+	scala.meta.internal.metals.Indexer.reindexWorkspaceSources(Indexer.scala:688)
+	scala.meta.internal.metals.MetalsLspService.$anonfun$onChange$2(MetalsLspService.scala:940)
+	scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+	scala.concurrent.Future$.$anonfun$apply$1(Future.scala:691)
+	scala.concurrent.impl.Promise$Transformation.run(Promise.scala:500)
+	java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	java.base/java.lang.Thread.run(Thread.java:1583)
+```
+#### Short summary: 
+
+QDox parse error in file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/SimulationScreen.java

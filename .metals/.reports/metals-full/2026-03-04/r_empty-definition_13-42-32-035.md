@@ -1,30 +1,21 @@
+error id: file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/ManualInputScreen.java:java/lang/Override#
+file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/ManualInputScreen.java
+empty definition using pc, found symbol in pc: java/lang/Override#
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+
+offset: 10752
+uri: file:///C:/Software%20Projects/Academics/CMSC%20125/cpu-scheduling/src/main/java/com/cpuScheduler/ManualInputScreen.java
+text:
+```scala
 package com.cpuScheduler;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class ManualInputScreen extends JPanel {
 
@@ -123,14 +114,6 @@ public class ManualInputScreen extends JPanel {
 
         // Populate from existing frame data
         refreshTable();
-
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-        @Override
-        public void componentShown(java.awt.event.ComponentEvent e) {
-            refreshTable();
-            algorithmLabel.setText("Algorithm: " + frame.getSelectedAlgorithm());
-        }
-    });
     }
 
     public void refreshTable() {
@@ -272,4 +255,20 @@ public class ManualInputScreen extends JPanel {
         frame.setProcesses(processes);
         frame.showScreen("SIMULATION");
     }
+
+    // Refresh table every time this screen becomes visible
+    addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Ove@@rride
+        public void componentShown(java.awt.event.ComponentEvent e) {
+            refreshTable();
+            algorithmLabel.setText("Algorithm: " + frame.getSelectedAlgorithm());
+        }
+    });
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: java/lang/Override#
