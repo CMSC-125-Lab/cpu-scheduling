@@ -72,15 +72,7 @@ public class InputMethodScreen extends JPanel {
                 return;
             }
 
-            // Generate random processes
             frame.setProcesses(generateRandomProcesses(count));
-
-            // Randomize algorithm + its settings
-            randomizeAlgorithm(frame);
-
-            // Show a summary dialog so the user knows what was generated
-            showRandomSummary(frame);
-
             frame.showScreen("MANUAL_INPUT");
         });
 
