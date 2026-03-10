@@ -45,8 +45,8 @@ public class HelpScreen extends JPanel {
             "</td></tr>" +
             "<tr><td colspan='2' style='background:#1a0a2a; border-radius:8px; padding:14px; margin-top:10px;'>" +
             "<b style='font-size:14px;'>📊 Constraints</b><br><br>" +
-            "Processes: 3–20 &nbsp;|&nbsp; Burst Time: 1–30 &nbsp;|&nbsp; Arrival Time: 0–30 &nbsp;|&nbsp; " +
-            "Priority: 1–20 (no duplicates) &nbsp;|&nbsp; Quantum: 1–10" +
+            "Processes: 3–20 &nbsp;|&nbsp; Burst Time: 1–30 ms &nbsp;|&nbsp; Arrival Time: 0–30 ms &nbsp;|&nbsp; " +
+            "Priority: 1–20 (no duplicates) &nbsp;|&nbsp; Quantum: 1–10 ms" +
             "</td></tr></table></body></html>"
         );
 

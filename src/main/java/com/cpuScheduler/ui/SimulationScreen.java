@@ -121,7 +121,7 @@ public class SimulationScreen extends JPanel {
         timerTitle.setFont(new Font("Monospaced", Font.BOLD, 16));
         timerTitle.setForeground(MainFrame.LIGHT_TEXT);
 
-        timerLabel = new JLabel("000");
+        timerLabel = new JLabel("000 ms");
         timerLabel.setFont(new Font("Monospaced", Font.BOLD, 28));
         timerLabel.setForeground(Color.WHITE);
         timerLabel.setBorder(BorderFactory.createCompoundBorder(
@@ -177,7 +177,7 @@ public class SimulationScreen extends JPanel {
         content.add(controls, gbc);
 
         // Row 3: Stats table
-        String[] cols = {"PID", "Burst", "Arrival", "Priority", "Waiting Time", "Turnaround Time"};
+        String[] cols = {"PID", "Burst (ms)", "Arrival (ms)", "Priority", "Waiting Time (ms)", "Turnaround Time (ms)"};
         Object[][] rows = buildTableData();
         DefaultTableModel model = new DefaultTableModel(rows, cols) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -203,7 +203,7 @@ public class SimulationScreen extends JPanel {
         // Row 4: Averages
         double[] avgs = computeAverages();
         JLabel avgLabel = new JLabel(String.format(
-            "Average Waiting Time: %.2f  |  Average Turnaround Time: %.2f", avgs[0], avgs[1]),
+            "Average Waiting Time: %.2f ms  |  Average Turnaround Time: %.2f ms", avgs[0], avgs[1]),
             SwingConstants.CENTER);
         avgLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         avgLabel.setForeground(MainFrame.LIGHT_TEXT);
@@ -381,7 +381,7 @@ public class SimulationScreen extends JPanel {
             if (currentTimerTick < maxTime) {
                 prevTimerTick    = currentTimerTick;
                 currentTimerTick = Math.min(maxTime, currentTimerTick + getStep());
-                timerLabel.setText(String.format("%03d", (int) currentTimerTick));
+                timerLabel.setText(String.format("%03d ms", (int) currentTimerTick));
                 ganttPanel.repaint();
                 updateAudio();
             } else {
@@ -421,7 +421,7 @@ public class SimulationScreen extends JPanel {
         currentTimerTick = 0f;
         prevTimerTick    = 0f;
         lastEntryIndex   = -1;
-        timerLabel.setText("000");
+        timerLabel.setText("000 ms");
         ganttPanel.repaint();
     }
 
@@ -492,14 +492,14 @@ public class SimulationScreen extends JPanel {
 
                 g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
                 g2.setColor(new Color(200, 180, 210));
-                g2.drawString(String.valueOf(entry.startTime), x, LABEL_Y);
+                g2.drawString(entry.startTime + "ms", x, LABEL_Y);
             }
 
             if (currentTimerTick >= maxTime && !result.gantt.isEmpty()) {
                 g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
                 g2.setColor(new Color(200, 180, 210));
                 int endX = H_PAD + Math.round(maxTime * scale);
-                g2.drawString(String.valueOf(maxTime), endX, LABEL_Y);
+                g2.drawString(maxTime + "ms", endX, LABEL_Y);
             }
 
             int cursorX = H_PAD + Math.round(currentTimerTick * scale);

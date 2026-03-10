@@ -52,7 +52,7 @@ public class ManualInputScreen extends JPanel {
         add(topBar, BorderLayout.NORTH);
 
         // ---- TABLE ----
-        String[] columns = {"PID", "Burst Time", "Arrival Time", "Priority"};
+        String[] columns = {"PID", "Burst Time (ms)", "Arrival Time (ms)", "Priority"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int col) { return true; }
         };
