@@ -29,7 +29,7 @@ public class WelcomeScreen extends JPanel {
 
         JButton startBtn    = UIUtils.createStyledButton("▶   Start Simulation");
         JButton helpBtn     = UIUtils.createStyledButton("?   Help");
-        JButton settingsBtn = UIUtils.createStyledButton("Settings");
+        JButton settingsBtn = UIUtils.createStyledButton("⚙   Settings");
         startBtn.setPreferredSize(new Dimension(240, 44));
         helpBtn.setPreferredSize(new Dimension(240, 44));
         settingsBtn.setPreferredSize(new Dimension(240, 44));
