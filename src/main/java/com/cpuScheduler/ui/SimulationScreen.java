@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class SimulationScreen extends JPanel {
@@ -137,25 +138,38 @@ public class SimulationScreen extends JPanel {
 
         // Row 1: Gantt
         ganttPanel = new GanttPanel();
-        JPanel ganttWrapper = new JPanel(new BorderLayout());
-        ganttWrapper.setOpaque(false);
-        ganttWrapper.setBorder(BorderFactory.createLineBorder(MainFrame.PURPLE_BTN, 1));
-        ganttWrapper.add(ganttPanel, BorderLayout.CENTER);
-        ganttWrapper.setPreferredSize(new Dimension(10, GANTT_HEIGHT));
-        ganttWrapper.setMinimumSize(new Dimension(10, GANTT_HEIGHT));
+        
+        // Wrap in scroll pane for horizontal scrolling
+        JScrollPane ganttScrollPane = new JScrollPane(ganttPanel);
+        ganttScrollPane.setOpaque(false);
+        ganttScrollPane.getViewport().setOpaque(false);
+        ganttScrollPane.getViewport().setBackground(new Color(25, 10, 40));
+        ganttScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        ganttScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        ganttScrollPane.setBorder(BorderFactory.createLineBorder(MainFrame.PURPLE_BTN, 1));
+        ganttScrollPane.setPreferredSize(new Dimension(10, GANTT_HEIGHT + 20)); // Extra for scrollbar
+        ganttScrollPane.setMinimumSize(new Dimension(10, GANTT_HEIGHT + 20));
+        ganttScrollPane.getHorizontalScrollBar().setBackground(new Color(30, 15, 50));
+        ganttScrollPane.getHorizontalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = MainFrame.PURPLE_BTN;
+                this.trackColor = new Color(30, 15, 50);
+            }
+        });
 
         gbc.gridy = 1; gbc.weighty = 0;
         gbc.insets = new Insets(0, 0, 8, 0);
-        content.add(ganttWrapper, gbc);
+        content.add(ganttScrollPane, gbc);
 
         // Row 2: Controls
-        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 2));
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 15));
         controls.setOpaque(false);
 
         playPauseBtn = UIUtils.createStyledButton("▶ Play");
         JButton resetBtn = UIUtils.createStyledButton("⟳ Reset");
-        playPauseBtn.setPreferredSize(new Dimension(120, 36));
-        resetBtn.setPreferredSize(new Dimension(120, 36));
+        playPauseBtn.setPreferredSize(new Dimension(180, 45));
+        resetBtn.setPreferredSize(new Dimension(180, 45));
 
         JLabel speedLbl = new JLabel("Speed:");
         speedLbl.setForeground(MainFrame.LIGHT_TEXT);
@@ -173,11 +187,11 @@ public class SimulationScreen extends JPanel {
         controls.add(speedSlider);
 
         gbc.gridy = 2; gbc.weighty = 0;
-        gbc.insets = new Insets(0, 0, 10, 0);
+        gbc.insets = new Insets(10, 0, 20, 0);
         content.add(controls, gbc);
 
         // Row 3: Stats table
-        String[] cols = {"PID", "Burst (ms)", "Arrival (ms)", "Priority", "Waiting Time (ms)", "Turnaround Time (ms)"};
+        String[] cols = {"PID", "Burst (ms)", "Arrival (ms)", "Priority", "WT (ms)", "TAT (ms)", "Avg WT (ms)", "Avg TAT (ms)"};
         Object[][] rows = buildTableData();
         DefaultTableModel model = new DefaultTableModel(rows, cols) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -197,20 +211,8 @@ public class SimulationScreen extends JPanel {
             MainFrame.LIGHT_TEXT));
 
         gbc.gridy = 3; gbc.fill = GridBagConstraints.BOTH; gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, 0, 8, 0);
-        content.add(tableScroll, gbc);
-
-        // Row 4: Averages
-        double[] avgs = computeAverages();
-        JLabel avgLabel = new JLabel(String.format(
-            "Average Waiting Time: %.2f ms  |  Average Turnaround Time: %.2f ms", avgs[0], avgs[1]),
-            SwingConstants.CENTER);
-        avgLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        avgLabel.setForeground(MainFrame.LIGHT_TEXT);
-
-        gbc.gridy = 4; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weighty = 0;
         gbc.insets = new Insets(0, 0, 0, 0);
-        content.add(avgLabel, gbc);
+        content.add(tableScroll, gbc);
 
         add(content, BorderLayout.CENTER);
 
@@ -343,11 +345,13 @@ public class SimulationScreen extends JPanel {
 
     private Object[][] buildTableData() {
         List<Process> procs = result.processes;
-        Object[][] rows = new Object[procs.size()][6];
+        double[] avgs = computeAverages();
+        Object[][] rows = new Object[procs.size()][8];
         for (int i = 0; i < procs.size(); i++) {
             Process p = procs.get(i);
             rows[i] = new Object[]{p.pid, p.burstTime, p.arrivalTime, p.priority,
-                                   p.waitingTime, p.turnaroundTime};
+                                   p.waitingTime, p.turnaroundTime,
+                                   String.format("%.2f", avgs[0]), String.format("%.2f", avgs[1])};
         }
         return rows;
     }
@@ -362,15 +366,38 @@ public class SimulationScreen extends JPanel {
     private void styleTable(JTable t) {
         t.setBackground(new Color(30, 15, 50));
         t.setForeground(Color.WHITE);
-        t.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        t.setRowHeight(26);
+        t.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        t.setRowHeight(30);
         t.setSelectionBackground(MainFrame.PURPLE_BTN);
         t.setSelectionForeground(Color.WHITE);
         t.setGridColor(new Color(80, 40, 100));
         t.getTableHeader().setBackground(new Color(60, 20, 80));
         t.getTableHeader().setForeground(MainFrame.LIGHT_TEXT);
-        t.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
+        t.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
         t.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        
+        // Center align all cells
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("SansSerif", Font.PLAIN, 15));
+                if (isSelected) {
+                    setBackground(MainFrame.PURPLE_BTN);
+                    setForeground(Color.WHITE);
+                } else {
+                    setBackground(new Color(30, 15, 50));
+                    setForeground(Color.WHITE);
+                }
+                return this;
+            }
+        };
+        
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
     // ================================================================
@@ -433,16 +460,31 @@ public class SimulationScreen extends JPanel {
         private static final int BAR_H   = 44;
         private static final int LABEL_Y = BAR_Y + BAR_H + 18;
         private static final int H_PAD   = 10;
+        
+        // Minimum pixels per millisecond to ensure labels are readable
+        private static final float MIN_SCALE = 30.0f;
 
         GanttPanel() {
             setOpaque(false);
-            setPreferredSize(new Dimension(10, GANTT_HEIGHT));
+            updatePreferredSize();
+        }
+        
+        private void updatePreferredSize() {
+            // Calculate width needed with minimum scale
+            int neededWidth = H_PAD * 2 + Math.round(maxTime * MIN_SCALE);
+            setPreferredSize(new Dimension(neededWidth, GANTT_HEIGHT));
+            revalidate();
         }
 
         private float getScale() {
+            if (maxTime <= 0) return MIN_SCALE;
+            
             int usableWidth = getWidth() - H_PAD * 2;
-            if (maxTime <= 0 || usableWidth <= 0) return 1f;
-            return (float) usableWidth / maxTime;
+            if (usableWidth <= 0) return MIN_SCALE;
+            
+            // Use the larger of: minimum scale or fit-to-width scale
+            float fitScale = (float) usableWidth / maxTime;
+            return Math.max(MIN_SCALE, fitScale);
         }
 
         @Override
@@ -456,6 +498,11 @@ public class SimulationScreen extends JPanel {
 
             g2.setColor(new Color(25, 10, 40));
             g2.fillRect(0, 0, getWidth(), getHeight());
+
+            // Track last time label position to avoid overlaps
+            int lastTimeLabelEnd = -100;
+            Font timeFont = new Font("Monospaced", Font.PLAIN, 10);
+            FontMetrics timeFm = g2.getFontMetrics(timeFont);
 
             for (GanttEntry entry : result.gantt) {
                 if (entry.startTime >= currentTimerTick) break;
@@ -479,29 +526,57 @@ public class SimulationScreen extends JPanel {
                 g2.setColor(c.darker());
                 g2.drawRect(x, BAR_Y, fullW, BAR_H);
 
+                // Draw PID label if block is fully visible
                 if (visibleEnd >= entry.endTime) {
                     g2.setColor(Color.WHITE);
-                    g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-                    FontMetrics fm = g2.getFontMetrics();
-                    if (fm.stringWidth(entry.pid) < fullW - 4) {
+                    
+                    // Try different font sizes to fit the label
+                    Font pidFont = null;
+                    FontMetrics pidFm = null;
+                    
+                    for (int fontSize : new int[]{12, 10, 8}) {
+                        pidFont = new Font("SansSerif", Font.BOLD, fontSize);
+                        pidFm = g2.getFontMetrics(pidFont);
+                        if (pidFm.stringWidth(entry.pid) <= fullW - 4) {
+                            break;
+                        }
+                    }
+                    
+                    if (pidFm != null && pidFm.stringWidth(entry.pid) <= fullW - 4) {
+                        g2.setFont(pidFont);
                         g2.drawString(entry.pid,
-                            x + (fullW - fm.stringWidth(entry.pid)) / 2,
-                            BAR_Y + BAR_H / 2 + 5);
+                            x + (fullW - pidFm.stringWidth(entry.pid)) / 2,
+                            BAR_Y + BAR_H / 2 + pidFm.getHeight() / 3);
                     }
                 }
 
-                g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
-                g2.setColor(new Color(200, 180, 210));
-                g2.drawString(entry.startTime + "ms", x, LABEL_Y);
+                // Draw time label only if it won't overlap with previous label
+                String timeLabel = entry.startTime + "ms";
+                int labelWidth = timeFm.stringWidth(timeLabel);
+                
+                if (x > lastTimeLabelEnd + 5) {
+                    g2.setFont(timeFont);
+                    g2.setColor(new Color(200, 180, 210));
+                    g2.drawString(timeLabel, x, LABEL_Y);
+                    lastTimeLabelEnd = x + labelWidth;
+                }
             }
 
+            // Draw final time label
             if (currentTimerTick >= maxTime && !result.gantt.isEmpty()) {
-                g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
+                g2.setFont(timeFont);
                 g2.setColor(new Color(200, 180, 210));
                 int endX = H_PAD + Math.round(maxTime * scale);
-                g2.drawString(maxTime + "ms", endX, LABEL_Y);
+                String endLabel = maxTime + "ms";
+                int labelWidth = timeFm.stringWidth(endLabel);
+                
+                // Only draw if it won't overlap with last label
+                if (endX > lastTimeLabelEnd + 5) {
+                    g2.drawString(endLabel, endX, LABEL_Y);
+                }
             }
 
+            // Draw cursor
             int cursorX = H_PAD + Math.round(currentTimerTick * scale);
             g2.setColor(new Color(255, 220, 255, 200));
             g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,

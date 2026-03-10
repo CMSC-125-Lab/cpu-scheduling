@@ -27,7 +27,7 @@ public class WelcomeScreen extends JPanel {
         subtitle.setForeground(new Color(180, 120, 180));
         subtitle.setAlignmentX(CENTER_ALIGNMENT);
 
-        JButton startBtn    = UIUtils.createStyledButton("▶   Start Simulation");
+        JButton startBtn    = UIUtils.createStyledButton("▶   Start");
         JButton helpBtn     = UIUtils.createStyledButton("?   Help");
         JButton settingsBtn = UIUtils.createStyledButton("⚙   Settings");
         startBtn.setPreferredSize(new Dimension(240, 44));

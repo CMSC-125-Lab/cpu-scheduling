@@ -26,6 +26,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class ManualInputScreen extends JPanel {
@@ -153,6 +155,29 @@ public class ManualInputScreen extends JPanel {
         t.getTableHeader().setBackground(new Color(60, 20, 80));
         t.getTableHeader().setForeground(MainFrame.LIGHT_TEXT);
         t.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        
+        // Center align all cells
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("SansSerif", Font.PLAIN, 13));
+                if (isSelected) {
+                    setBackground(MainFrame.PURPLE_BTN);
+                    setForeground(Color.WHITE);
+                } else {
+                    setBackground(new Color(30, 15, 50));
+                    setForeground(Color.WHITE);
+                }
+                return this;
+            }
+        };
+        
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
     private void addProcessRow() {

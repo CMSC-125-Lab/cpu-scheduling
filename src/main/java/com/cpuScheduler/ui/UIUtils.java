@@ -26,7 +26,7 @@ public class UIUtils {
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
         btn.setFocusPainted(false);
         btn.setPreferredSize(new Dimension(200, 42));
         btn.setOpaque(false);
@@ -39,7 +39,7 @@ public class UIUtils {
         btn.setForeground(MainFrame.LIGHT_TEXT);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 15));
         btn.setFocusPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addActionListener(action);
