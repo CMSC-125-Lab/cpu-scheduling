@@ -3,15 +3,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.code4school</groupId>
+    <groupId>com.cpuScheduler</groupId>
     <artifactId>cpu-scheduling</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <name>cpu-scheduling</name>
+    <version>1.0</version>
+    <name>CPU Scheduling Simulator</name>
+    <description>A Java Swing application for visualizing CPU scheduling algorithms.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
         <junit.version>5.10.2</junit.version>
+        <main.class>com.cpuScheduler.App</main.class>
     </properties>
 
     <dependencies>
@@ -25,11 +27,38 @@
 
     <build>
         <plugins>
+
+            <!-- Java 17 compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+
+            <!-- Produce an executable JAR with the correct Main-Class manifest entry -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main.class}</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- JUnit 5 test runner -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
+
         </plugins>
     </build>
 </project>
