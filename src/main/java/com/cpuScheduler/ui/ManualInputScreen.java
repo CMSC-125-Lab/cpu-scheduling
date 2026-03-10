@@ -163,7 +163,6 @@ public class ManualInputScreen extends JPanel {
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER);
-                setFont(new Font("SansSerif", Font.PLAIN, 13));
                 if (isSelected) {
                     setBackground(MainFrame.PURPLE_BTN);
                     setForeground(Color.WHITE);

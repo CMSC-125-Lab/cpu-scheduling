@@ -154,9 +154,12 @@ public class InputMethodScreen extends JPanel {
     // ---------------------------------------------------------------
     private void showRandomSummary(MainFrame frame) {
         String algo = frame.getSelectedAlgorithm();
+                int bodySize = UIUtils.scaleSize(frame, 12);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<html><body style='font-family:sans-serif; font-size:12px; color:#222;'>");
+                sb.append("<html><body style='font-family:sans-serif; font-size:")
+                    .append(bodySize)
+                    .append("px; color:#222;'>");
         sb.append("<b>Random generation complete!</b><br><br>");
         sb.append("Processes generated: <b>").append(frame.getProcesses().size()).append("</b><br>");
         sb.append("Algorithm selected: <b>").append(algo).append("</b><br>");

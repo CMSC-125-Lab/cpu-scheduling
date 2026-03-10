@@ -71,6 +71,7 @@ public class SimulationScreen extends JPanel {
     private JLabel     timerLabel;
     private JButton    playPauseBtn;
     private JSlider    speedSlider;
+    private final MainFrame frame;
 
     // ---- Audio ----
     // Map from gantt entry index → pre-built stretched Clip (null for IDLE)
@@ -78,6 +79,7 @@ public class SimulationScreen extends JPanel {
     private int lastEntryIndex = -1;
 
     public SimulationScreen(MainFrame frame) {
+        this.frame = frame;
         setBackground(MainFrame.BG_COLOR);
         setLayout(new BorderLayout(0, 0));
         setBorder(BorderFactory.createEmptyBorder(15, 25, 20, 25));
@@ -383,7 +385,6 @@ public class SimulationScreen extends JPanel {
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER);
-                setFont(new Font("SansSerif", Font.PLAIN, 15));
                 if (isSelected) {
                     setBackground(MainFrame.PURPLE_BTN);
                     setForeground(Color.WHITE);
@@ -501,7 +502,7 @@ public class SimulationScreen extends JPanel {
 
             // Track last time label position to avoid overlaps
             int lastTimeLabelEnd = -100;
-            Font timeFont = new Font("Monospaced", Font.PLAIN, 10);
+            Font timeFont = new Font("Monospaced", Font.PLAIN, UIUtils.scaleSize(frame, 10));
             FontMetrics timeFm = g2.getFontMetrics(timeFont);
 
             for (GanttEntry entry : result.gantt) {
@@ -534,7 +535,13 @@ public class SimulationScreen extends JPanel {
                     Font pidFont = null;
                     FontMetrics pidFm = null;
                     
-                    for (int fontSize : new int[]{12, 10, 8}) {
+                    int[] candidateSizes = {
+                        UIUtils.scaleSize(frame, 12),
+                        UIUtils.scaleSize(frame, 10),
+                        UIUtils.scaleSize(frame, 8)
+                    };
+
+                    for (int fontSize : candidateSizes) {
                         pidFont = new Font("SansSerif", Font.BOLD, fontSize);
                         pidFm = g2.getFontMetrics(pidFont);
                         if (pidFm.stringWidth(entry.pid) <= fullW - 4) {
