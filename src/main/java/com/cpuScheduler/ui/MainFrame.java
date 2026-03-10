@@ -49,6 +49,7 @@ public class MainFrame extends JFrame {
         cardPanel.add(new SettingsScreen(this),    "SETTINGS");
 
         add(cardPanel);
+        UIUtils.installDynamicFontScaling(this);
 
         // Hide the main frame while the splash is showing
         setVisible(false);
@@ -72,6 +73,7 @@ public class MainFrame extends JFrame {
             processes.clear();
         }
         cardLayout.show(cardPanel, name);
+        UIUtils.applyDynamicFonts(this);
     }
 
     // ---------- Shared data getters/setters ----------

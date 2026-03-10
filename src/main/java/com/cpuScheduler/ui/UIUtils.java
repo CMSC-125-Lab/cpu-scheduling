@@ -4,8 +4,18 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
+import javax.swing.border.TitledBorder;
 
 public class UIUtils {
+
+    private static final String BASE_FONT_SIZE_KEY = "dynamicBaseFontSize";
+    private static final String BASE_TITLE_FONT_SIZE_KEY = "dynamicBaseTitleFontSize";
+    private static final String DYNAMIC_LISTENER_KEY = "dynamicFontListenerInstalled";
+    private static final int DESIGN_WIDTH = 1050;
+    private static final int DESIGN_HEIGHT = 680;
 
     public static JButton createStyledButton(String text) {
         JButton btn = new JButton(text) {
@@ -32,6 +42,86 @@ public class UIUtils {
         btn.setOpaque(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return btn;
+    }
+
+    public static int scaleSize(JFrame frame, int baseSize) {
+        float factor = frameScaleFactor(frame);
+        return Math.max(8, Math.round(baseSize * factor));
+    }
+
+    public static float frameScaleFactor(JFrame frame) {
+        if (frame == null) return 1.0f;
+        float widthFactor = frame.getWidth() / (float) DESIGN_WIDTH;
+        float heightFactor = frame.getHeight() / (float) DESIGN_HEIGHT;
+        float factor = Math.min(widthFactor, heightFactor);
+        return Math.max(0.75f, Math.min(1.8f, factor));
+    }
+
+    public static void installDynamicFontScaling(MainFrame frame) {
+        if (Boolean.TRUE.equals(frame.getRootPane().getClientProperty(DYNAMIC_LISTENER_KEY))) return;
+
+        frame.getRootPane().putClientProperty(DYNAMIC_LISTENER_KEY, Boolean.TRUE);
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                applyDynamicFonts(frame);
+            }
+        });
+
+        SwingUtilities.invokeLater(() -> applyDynamicFonts(frame));
+    }
+
+    public static void applyDynamicFonts(MainFrame frame) {
+        if (frame == null) return;
+        applyDynamicFontsRecursive(frame.getContentPane(), frame);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private static void applyDynamicFontsRecursive(Component component, MainFrame frame) {
+        if (component instanceof JComponent jc) {
+            Font currentFont = jc.getFont();
+            if (currentFont != null) {
+                Float baseSize = (Float) jc.getClientProperty(BASE_FONT_SIZE_KEY);
+                if (baseSize == null) {
+                    baseSize = currentFont.getSize2D();
+                    jc.putClientProperty(BASE_FONT_SIZE_KEY, baseSize);
+                }
+                float scaledSize = Math.max(8f, baseSize * frameScaleFactor(frame));
+                if (Math.abs(currentFont.getSize2D() - scaledSize) > 0.2f) {
+                    jc.setFont(currentFont.deriveFont(scaledSize));
+                }
+            }
+
+            if (jc.getBorder() instanceof TitledBorder titledBorder) {
+                Font titleFont = titledBorder.getTitleFont();
+                if (titleFont == null) titleFont = UIManager.getFont("TitledBorder.font");
+                if (titleFont != null) {
+                    Float baseTitleSize = (Float) jc.getClientProperty(BASE_TITLE_FONT_SIZE_KEY);
+                    if (baseTitleSize == null) {
+                        baseTitleSize = titleFont.getSize2D();
+                        jc.putClientProperty(BASE_TITLE_FONT_SIZE_KEY, baseTitleSize);
+                    }
+                    float scaledTitleSize = Math.max(8f, baseTitleSize * frameScaleFactor(frame));
+                    titledBorder.setTitleFont(titleFont.deriveFont(scaledTitleSize));
+                }
+            }
+
+            if (jc instanceof JTable table) {
+                Integer baseRowHeight = (Integer) jc.getClientProperty("dynamicBaseRowHeight");
+                if (baseRowHeight == null) {
+                    baseRowHeight = table.getRowHeight();
+                    jc.putClientProperty("dynamicBaseRowHeight", baseRowHeight);
+                }
+                table.setRowHeight(Math.max(18, Math.round(baseRowHeight * frameScaleFactor(frame))));
+            }
+        }
+
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                applyDynamicFontsRecursive(child, frame);
+            }
+        }
     }
 
     public static JButton createNavButton(String text, java.awt.event.ActionListener action) {
