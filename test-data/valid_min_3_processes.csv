@@ -1,0 +1,5 @@
+# Minimum allowed: exactly 3 processes
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,2
+P2,5,2,1
+P3,8,1,3

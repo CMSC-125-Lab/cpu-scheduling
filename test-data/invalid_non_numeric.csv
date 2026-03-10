@@ -1,0 +1,5 @@
+# ERROR: P2 has "five" instead of a number for BurstTime
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,1
+P2,five,2,2
+P3,8,1,3

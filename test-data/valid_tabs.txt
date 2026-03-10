@@ -1,0 +1,6 @@
+PID	BurstTime	ArrivalTime	Priority
+P1	7	0	2
+P2	14	3	5
+P3	4	1	1
+P4	9	5	3
+P5	11	2	4

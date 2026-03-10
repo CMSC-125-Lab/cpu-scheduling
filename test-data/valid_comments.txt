@@ -1,0 +1,14 @@
+# CPU Scheduling test data
+# Format: PID, BurstTime, ArrivalTime, Priority
+# Burst: 1-30 | Arrival: 0-30 | Priority: 1-20 (unique)
+
+PID,BurstTime,ArrivalTime,Priority
+
+# First three arrive at time 0
+P1,6,0,4
+P2,3,0,1
+P3,10,0,3
+
+# Later arrivals
+P4,7,5,2
+P5,5,8,5

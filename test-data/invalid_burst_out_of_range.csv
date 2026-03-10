@@ -1,0 +1,7 @@
+# ERROR: P2 has burst time 0 — minimum is 1
+# Also demonstrates: P4 has burst time 31 — maximum is 30
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,1
+P2,0,2,2
+P3,8,1,3
+P4,31,4,4

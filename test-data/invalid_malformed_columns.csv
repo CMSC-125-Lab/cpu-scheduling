@@ -1,0 +1,5 @@
+# ERROR: P2 is missing the Priority column (only 3 fields)
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,1
+P2,5,2
+P3,8,1,3

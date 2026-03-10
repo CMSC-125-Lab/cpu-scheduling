@@ -1,0 +1,5 @@
+# ERROR: P2 has arrival time 31 — maximum is 30
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,1
+P2,5,31,2
+P3,8,1,3

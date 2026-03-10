@@ -1,0 +1,6 @@
+# ERROR: P1 and P3 both have priority 2 — priorities must be unique
+PID,BurstTime,ArrivalTime,Priority
+P1,10,0,2
+P2,5,2,1
+P3,8,1,2
+P4,6,3,4
