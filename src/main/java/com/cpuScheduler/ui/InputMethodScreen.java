@@ -72,15 +72,7 @@ public class InputMethodScreen extends JPanel {
                 return;
             }
 
-            // Generate random processes
             frame.setProcesses(generateRandomProcesses(count));
-
-            // Randomize algorithm + its settings
-            randomizeAlgorithm(frame);
-
-            // Show a summary dialog so the user knows what was generated
-            showRandomSummary(frame);
-
             frame.showScreen("MANUAL_INPUT");
         });
 
@@ -121,61 +113,4 @@ public class InputMethodScreen extends JPanel {
         return list;
     }
 
-    // ---------------------------------------------------------------
-    // Randomly pick an algorithm and configure its settings in frame
-    // ---------------------------------------------------------------
-    private void randomizeAlgorithm(MainFrame frame) {
-        String[] algos = {
-            "FCFS",
-            "Round Robin",
-            "SJF (Non-Preemptive)",
-            "SJF (Preemptive)",
-            "Priority (Non-Preemptive)",
-            "Priority (Preemptive)"
-        };
-
-        Random rnd = new Random();
-        String chosen = algos[rnd.nextInt(algos.length)];
-        frame.setSelectedAlgorithm(chosen);
-
-        // Random quantum for Round Robin (1–10)
-        if (chosen.contains("Round")) {
-            frame.setTimeQuantum(rnd.nextInt(10) + 1);
-        }
-
-        // Random priority order for Priority algorithms
-        if (chosen.contains("Priority")) {
-            frame.setHigherPriorityFirst(rnd.nextBoolean());
-        }
-    }
-
-    // ---------------------------------------------------------------
-    // Show a brief summary of what was randomly generated
-    // ---------------------------------------------------------------
-    private void showRandomSummary(MainFrame frame) {
-        String algo = frame.getSelectedAlgorithm();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html><body style='font-family:sans-serif; font-size:12px; color:#222;'>");
-        sb.append("<b>Random generation complete!</b><br><br>");
-        sb.append("Processes generated: <b>").append(frame.getProcesses().size()).append("</b><br>");
-        sb.append("Algorithm selected: <b>").append(algo).append("</b><br>");
-
-        if (algo.contains("Round")) {
-            sb.append("Time Quantum: <b>").append(frame.getTimeQuantum()).append("</b><br>");
-        }
-        if (algo.contains("Priority")) {
-            sb.append("Priority order: <b>")
-              .append(frame.isHigherPriorityFirst()
-                  ? "Higher number = Higher priority"
-                  : "Lower number = Higher priority")
-              .append("</b><br>");
-        }
-
-        sb.append("<br><i>You can review and edit everything before running.</i>");
-        sb.append("</body></html>");
-
-        JOptionPane.showMessageDialog(frame, new JLabel(sb.toString()),
-            "Random Input Summary", JOptionPane.INFORMATION_MESSAGE);
-    }
 }

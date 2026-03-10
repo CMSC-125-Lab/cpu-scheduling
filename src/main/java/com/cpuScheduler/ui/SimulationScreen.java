@@ -24,6 +24,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -344,7 +346,8 @@ public class SimulationScreen extends JPanel {
     }
 
     private Object[][] buildTableData() {
-        List<Process> procs = result.processes;
+        List<Process> procs = new ArrayList<>(result.processes);
+        procs.sort(Comparator.comparing(p -> p.pid));
         double[] avgs = computeAverages();
         Object[][] rows = new Object[procs.size()][8];
         for (int i = 0; i < procs.size(); i++) {
