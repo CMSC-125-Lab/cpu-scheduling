@@ -532,8 +532,6 @@ public class SimulationScreen extends JPanel {
 
                 // Draw PID label if block is fully visible
                 if (visibleEnd >= entry.endTime) {
-                    g2.setColor(Color.WHITE);
-                    
                     // Try different font sizes to fit the label
                     Font pidFont = null;
                     FontMetrics pidFm = null;
@@ -547,16 +545,23 @@ public class SimulationScreen extends JPanel {
                     for (int fontSize : candidateSizes) {
                         pidFont = new Font("SansSerif", Font.BOLD, fontSize);
                         pidFm = g2.getFontMetrics(pidFont);
-                        if (pidFm.stringWidth(entry.pid) <= fullW - 4) {
+                        if (pidFm.stringWidth(entry.pid) <= fullW - 6) {
                             break;
                         }
                     }
                     
-                    if (pidFm != null && pidFm.stringWidth(entry.pid) <= fullW - 4) {
+                    if (pidFm != null && pidFm.stringWidth(entry.pid) <= fullW - 6) {
+                        // Draw background rectangle for text visibility
+                        int textWidth = pidFm.stringWidth(entry.pid);
+                        int textX = x + (fullW - textWidth) / 2;
+                        int textY = BAR_Y + BAR_H / 2 - pidFm.getHeight() / 2;
+                        
+                        g2.setColor(new Color(0, 0, 0, 140));
+                        g2.fillRect(textX - 2, textY - 1, textWidth + 4, pidFm.getHeight());
+                        
+                        g2.setColor(Color.WHITE);
                         g2.setFont(pidFont);
-                        g2.drawString(entry.pid,
-                            x + (fullW - pidFm.stringWidth(entry.pid)) / 2,
-                            BAR_Y + BAR_H / 2 + pidFm.getHeight() / 3);
+                        g2.drawString(entry.pid, textX, textY + pidFm.getAscent());
                     }
                 }
 

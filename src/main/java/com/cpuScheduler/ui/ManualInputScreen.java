@@ -36,6 +36,54 @@ public class ManualInputScreen extends JPanel {
     private JTable table;
     private JLabel algorithmLabel;
     private MainFrame frame;
+    
+    // Custom table model with duplicate priority detection
+    private class ProcessTableModel extends DefaultTableModel {
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            // Column 0 (PID): not editable
+            if (col == 0) return false;
+            // Column 3 (Priority): only editable for priority algorithms
+            if (col == 3) {
+                String algo = frame.getSelectedAlgorithm();
+                return algo != null && algo.contains("Priority");
+            }
+            // Columns 1, 2 (Burst, Arrival): always editable
+            return true;
+        }
+        
+        @Override
+        public void setValueAt(Object aValue, int row, int col) {
+            // If setting priority, check for duplicates
+            if (col == 3 && aValue != null) {
+                try {
+                    int newPriority = Integer.parseInt(aValue.toString().trim());
+                    String algo = frame.getSelectedAlgorithm();
+                    
+                    // Only validate duplicates for priority algorithms
+                    if (algo != null && algo.contains("Priority")) {
+                        for (int i = 0; i < getRowCount(); i++) {
+                            if (i != row) {
+                                Object existingVal = getValueAt(i, 3);
+                                if (existingVal != null) {
+                                    try {
+                                        int existingPriority = Integer.parseInt(existingVal.toString().trim());
+                                        if (existingPriority == newPriority) {
+                                            JOptionPane.showMessageDialog(frame,
+                                                "Priority " + newPriority + " is already used in row " + (i+1) + ".",
+                                                "Duplicate Priority", JOptionPane.WARNING_MESSAGE);
+                                            return; // Don't set the value
+                                        }
+                                    } catch (NumberFormatException ignored) {}
+                                }
+                            }
+                        }
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+            super.setValueAt(aValue, row, col);
+        }
+    }
 
     public ManualInputScreen(MainFrame frame) {
         this.frame = frame;
@@ -55,9 +103,8 @@ public class ManualInputScreen extends JPanel {
 
         // ---- TABLE ----
         String[] columns = {"PID", "Burst Time (ms)", "Arrival Time (ms)", "Priority"};
-        tableModel = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return true; }
-        };
+        tableModel = new ProcessTableModel();
+        tableModel.setColumnIdentifiers(columns);
         table = new JTable(tableModel);
         styleTable(table);
 
@@ -156,13 +203,21 @@ public class ManualInputScreen extends JPanel {
         t.getTableHeader().setForeground(MainFrame.LIGHT_TEXT);
         t.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         
-        // Center align all cells
+        // Center align all cells with disabled state styling for priority column
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
             @Override
             public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                // Check if priority column is disabled
+                boolean priorityDisabled = (column == 3) && 
+                    (frame.getSelectedAlgorithm() == null || 
+                     !frame.getSelectedAlgorithm().contains("Priority"));
+                
+                // Show empty string for disabled priority column
+                Object displayValue = priorityDisabled ? "" : value;
+                super.getTableCellRendererComponent(table, displayValue, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER);
+                
                 if (isSelected) {
                     setBackground(MainFrame.PURPLE_BTN);
                     setForeground(Color.WHITE);
@@ -252,6 +307,8 @@ public class ManualInputScreen extends JPanel {
             frame.setTimeQuantum((Integer) quantumSpinner.getValue());
             frame.setHigherPriorityFirst(highFirst.isSelected());
             algorithmLabel.setText("Algorithm: " + sel);
+            // Refresh table to update cell editability
+            table.repaint();
         }
     }
 

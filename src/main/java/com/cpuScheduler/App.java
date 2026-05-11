@@ -1,4 +1,4 @@
-package com.cpuScheduler;
+ package com.cpuScheduler;
 
 import com.cpuScheduler.ui.MainFrame;
 import javax.swing.SwingUtilities;
