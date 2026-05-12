@@ -32,9 +32,24 @@ public class PriorityNonPreemptive {
                 continue;
             }
 
-            available.sort((a, b) -> higherNumberMeansHighPriority
-                    ? b.priority - a.priority
-                    : a.priority - b.priority);
+            // Sort by priority, then by arrival time, then by input order
+            available.sort((a, b) -> {
+                // First compare by priority
+                int priorityCompare = higherNumberMeansHighPriority
+                        ? b.priority - a.priority
+                        : a.priority - b.priority;
+                if (priorityCompare != 0) return priorityCompare;
+                
+                // If same priority, compare by arrival time
+                int arrivalCompare = a.arrivalTime - b.arrivalTime;
+                if (arrivalCompare != 0) return arrivalCompare;
+                
+                // If same arrival time, maintain input order (both were in same available list, so compare by original index)
+                // Find original indices in the processes list
+                int indexA = remaining.indexOf(a);
+                int indexB = remaining.indexOf(b);
+                return indexA - indexB;
+            });
 
             Process p = available.get(0);
             remaining.remove(p);

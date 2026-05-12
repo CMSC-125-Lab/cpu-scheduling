@@ -97,17 +97,12 @@ public class InputMethodScreen extends JPanel {
     private List<Process> generateRandomProcesses(int count) {
         Random rnd = new Random();
 
-        // Unique priorities drawn from 1–20
-        List<Integer> priorities = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) priorities.add(i);
-        Collections.shuffle(priorities, rnd);
-
         List<Process> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             String pid   = "P" + (i + 1);
             int burst    = rnd.nextInt(30) + 1;   // 1–30
             int arrival  = rnd.nextInt(31);         // 0–30
-            int priority = priorities.get(i);       // unique 1–20
+            int priority = rnd.nextInt(20) + 1;    // 1–20, can be duplicates
             list.add(new Process(pid, burst, arrival, priority));
         }
         return list;

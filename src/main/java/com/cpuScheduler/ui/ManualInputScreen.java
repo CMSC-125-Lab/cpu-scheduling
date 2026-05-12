@@ -37,7 +37,7 @@ public class ManualInputScreen extends JPanel {
     private JLabel algorithmLabel;
     private MainFrame frame;
     
-    // Custom table model with duplicate priority detection
+    // Custom table model
     private class ProcessTableModel extends DefaultTableModel {
         @Override
         public boolean isCellEditable(int row, int col) {
@@ -50,38 +50,6 @@ public class ManualInputScreen extends JPanel {
             }
             // Columns 1, 2 (Burst, Arrival): always editable
             return true;
-        }
-        
-        @Override
-        public void setValueAt(Object aValue, int row, int col) {
-            // If setting priority, check for duplicates
-            if (col == 3 && aValue != null) {
-                try {
-                    int newPriority = Integer.parseInt(aValue.toString().trim());
-                    String algo = frame.getSelectedAlgorithm();
-                    
-                    // Only validate duplicates for priority algorithms
-                    if (algo != null && algo.contains("Priority")) {
-                        for (int i = 0; i < getRowCount(); i++) {
-                            if (i != row) {
-                                Object existingVal = getValueAt(i, 3);
-                                if (existingVal != null) {
-                                    try {
-                                        int existingPriority = Integer.parseInt(existingVal.toString().trim());
-                                        if (existingPriority == newPriority) {
-                                            JOptionPane.showMessageDialog(frame,
-                                                "Priority " + newPriority + " is already used in row " + (i+1) + ".",
-                                                "Duplicate Priority", JOptionPane.WARNING_MESSAGE);
-                                            return; // Don't set the value
-                                        }
-                                    } catch (NumberFormatException ignored) {}
-                                }
-                            }
-                        }
-                    }
-                } catch (NumberFormatException ignored) {}
-            }
-            super.setValueAt(aValue, row, col);
         }
     }
 
@@ -332,10 +300,6 @@ public class ManualInputScreen extends JPanel {
                     throw new IllegalArgumentException("Row " + (i+1) + ": Arrival time must be 0–30.");
                 if (priority < 1 || priority > 20)
                     throw new IllegalArgumentException("Row " + (i+1) + ": Priority must be 1–20.");
-                if (usedPriorities.contains(priority))
-                    throw new IllegalArgumentException("Row " + (i+1) + ": Duplicate priority " + priority + ".");
-
-                usedPriorities.add(priority);
                 processes.add(new Process(pid, burst, arrival, priority));
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(frame,

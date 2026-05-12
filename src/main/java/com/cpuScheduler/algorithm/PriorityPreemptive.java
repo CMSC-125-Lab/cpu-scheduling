@@ -23,14 +23,36 @@ public class PriorityPreemptive {
         while (completed < n) {
             Process best = null;
             int bestPriority = higherNumberMeansHighPriority ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            int bestArrival = Integer.MAX_VALUE;
+            int bestIndex = Integer.MAX_VALUE;
 
-            for (Process p : processes) {
+            for (int i = 0; i < processes.size(); i++) {
+                Process p = processes.get(i);
                 if (p.arrivalTime <= currentTime && p.remainingTime > 0) {
-                    boolean isBetter = higherNumberMeansHighPriority
+                    boolean isBetter = false;
+                    
+                    // Compare by priority first
+                    boolean priorityBetter = higherNumberMeansHighPriority
                             ? p.priority > bestPriority
                             : p.priority < bestPriority;
+                    
+                    if (best == null) {
+                        isBetter = true;
+                    } else if (p.priority == bestPriority) {
+                        // Same priority: use arrival time, then input order
+                        if (p.arrivalTime < bestArrival) {
+                            isBetter = true;
+                        } else if (p.arrivalTime == bestArrival && i < bestIndex) {
+                            isBetter = true;
+                        }
+                    } else if (priorityBetter) {
+                        isBetter = true;
+                    }
+                    
                     if (isBetter) {
                         bestPriority = p.priority;
+                        bestArrival = p.arrivalTime;
+                        bestIndex = i;
                         best = p;
                     }
                 }

@@ -46,10 +46,6 @@ public class FileInputUtil {
                         throw new IllegalArgumentException("Arrival time out of range [0-30] for " + pid);
                     if (priority < 1 || priority > 20)
                         throw new IllegalArgumentException("Priority out of range [1-20] for " + pid);
-                    if (usedPriorities.contains(priority))
-                        throw new IllegalArgumentException("Duplicate priority " + priority + " for " + pid);
-
-                    usedPriorities.add(priority);
                     processes.add(new Process(pid, burst, arrival, priority));
                 } catch (NumberFormatException ex) {
                     if (lineNum == 1) continue; // skip header
